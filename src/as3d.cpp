@@ -3,12 +3,12 @@
 #include <stdlib.h>
 #include <core.h>
 #include <ll.h>
-#include <backends/x11.h>
+#include <backends/sdl2.h>
 #include <mdl.h>
 
 int main(void)
 {
-        X11Backend backend(640, 480);
+        SDL2Backend backend(640, 480);
         float t = 0.01f;
         ll<Tri, size_t> mdl = loadModel("assets/skull.obj");
         backend.setFragShader([](const Vertex &v) {
