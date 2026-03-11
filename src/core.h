@@ -36,6 +36,23 @@ protected:
         bool     keymap[256];
         float    mouseX, mouseY; // X,Y * W,H
         bool     isRunning = false;
+
+        Vertex Screen(Vertex &p)
+        {
+                Vertex new_v = {.tint = p.tint};
+                new_v.xyz[0] = (p.xyz[0] + 1) / 2 * this->w;
+                new_v.xyz[1] = (1 - (p.xyz[1] + 1) / 2) * this->h;
+                return new_v;
+        }
+
+        Vertex Project(Vertex &p)
+        {
+                Vertex new_v = {.tint = p.tint};
+                new_v.xyz[0] = p.xyz[0] / p.xyz[2];
+                new_v.xyz[1] = p.xyz[1] / p.xyz[2];
+                new_v.xyz[2] = p.xyz[2];
+                return new_v;
+        }
 public:
         Renderer(uint16_t w, uint16_t h)
         {
