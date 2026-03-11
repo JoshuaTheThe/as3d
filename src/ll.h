@@ -56,6 +56,7 @@ private:
                         last = n;
                 }
 
+                size++;
                 return n;
         }
 
@@ -79,7 +80,6 @@ public:
                         a = a->next;
                 }
 
-                delete a;
                 delete b;
                 size = 0;
                 last_accessed = last = first = nullptr;
