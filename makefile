@@ -1,6 +1,6 @@
 
 override CPC := clang++
-override LD := clang
+override LD := clang++
 override OUTPUT := as3d
 override BIN := bin
 override OBJ := bin
@@ -9,8 +9,8 @@ override SRC := src
 override CXXFILES := $(shell cd $(SRC) && find -L * -type f -name '*.cpp' | LC_ALL=C sort)
 override OBJFILES := $(addprefix $(OBJ)/,$(CXXFILES:.cpp=.cpp.o))
 
-override LDFLAGS := -lSDL2 -lm
-override CXXFLAGS := -I src/
+override LDFLAGS := -lSDL2 -lm -pthread
+override CXXFLAGS := -I src/ -std=c++11 -pthread
 override HEADER_DEPS := $(addprefix obj/,$(CXXFILES:.cpp=.cpp.d))
 
 .PHONY: all
