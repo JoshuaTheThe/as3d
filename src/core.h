@@ -9,6 +9,8 @@
 #include <functional>
 #include <string>
 
+#define NEAR 0.1
+
 enum    Backend
 {
         BACKEND_NONE,
@@ -100,17 +102,60 @@ public:
                 for (size_t i = 0; i < w*h; ++i)
                         fbufs[buf][i] = color;
         }
-        
+
         virtual void ZClear(void) { for (size_t i = 0; i < w*h; ++i) zbufs[buf][i] = INFINITY; }
 
         // 3D Features (allow override for optimisations)
         virtual void DrawPoint(const Vertex &p0) { Place(Screen(Project(p0))); }
-        virtual void DrawLine(const Vertex &p0, const Vertex &p1) {}
+        virtual void DrawLine(const Vertex &p0, const Vertex &p1){}
         virtual void DrawTri(const Tri &tri) {}
 
         // 2D Features (allow override for optimisations)
         virtual void DrawPixel(const Vertex &p0) { Place(Screen(p0)); }
-        virtual void DrawFlatLine(const Vertex &p0) {}
+
+        virtual void DrawFlatLine(const Vertex p0, const Vertex p1)
+        {
+                Vertex a = Screen(p0), b = Screen(p1);
+                float Δx = b.xyz[0] - a.xyz[0];
+                float Δy = b.xyz[1] - a.xyz[1];
+                bool steep = abs(Δy) > abs(Δx);
+                if (steep)
+                {
+                        std::swap(a.xyz[0], a.xyz[1]);
+                        std::swap(b.xyz[0], b.xyz[1]);
+                }
+
+                if (a.xyz[0] > b.xyz[0])
+                {
+                        std::swap(a, b);
+                }
+
+                Δx = b.xyz[0] - a.xyz[0];
+                Δy = b.xyz[1] - a.xyz[1];
+                float Δ  = 2 * abs(Δy) - Δx;
+                float y  = a.xyz[1];
+
+                for (size_t x = a.xyz[0]; x < b.xyz[0]; ++x)
+                {
+                        // TODO - lerp Tint
+                        Vertex vert = {.tint = a.tint};
+                        vert.xyz[0] = x;
+                        vert.xyz[1] = y;
+                        // TODO - lerp Z
+                        vert.xyz[2] = a.xyz[2];
+                        if (steep)
+                                std::swap(vert.xyz[0], vert.xyz[1]);
+                        Place(vert);
+                        if (Δ > 0)
+                        {
+                                y += (Δy < 0) ? -1 : 1;
+                                Δ += 2 * (abs(Δy) - Δx);
+                                continue;
+                        }
+                        Δ += 2 * abs(Δy);
+                }
+        }
+
         virtual void DrawFlatTri(const Tri &tri) {}
 };
 
