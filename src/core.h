@@ -11,31 +11,34 @@
 
 #define NEAR 0.1
 
-enum    Backend
+enum Backend
 {
         BACKEND_NONE,
         BACKEND_SDL2,
 };
 
-struct Color { float rgba[4]; };
-
-struct  Vertex
+struct Color
 {
-        Color   tint;
-        float   xyz[3];
+        float rgba[4];
 };
 
-class   Renderer
+struct Vertex
+{
+        Color tint;
+        float xyz[3];
+};
+
+class Renderer
 {
 protected:
         uint16_t w, h;
-        size_t   buf;
-        Color   *fbufs[2];
-        float   *zbufs[2];
+        size_t buf;
+        Color *fbufs[2];
+        float *zbufs[2];
 
-        bool     keymap[256];
-        float    mouseX, mouseY; // X,Y * W,H
-        bool     isRunning = false;
+        bool keymap[256];
+        float mouseX, mouseY; // X,Y * W,H
+        bool isRunning = false;
 
         float Lerp(float a, float b, float t)
         {
@@ -74,16 +77,17 @@ protected:
                         zbufs[buf][row + (int)p.xyz[0]] = p.xyz[2];
                 }
         }
+
 public:
         Renderer(uint16_t w, uint16_t h)
         {
                 this->w = w;
                 this->h = h;
                 buf = 0;
-                fbufs[0] = new Color[w*h];
-                fbufs[1] = new Color[w*h];
-                zbufs[0] = new float[w*h];
-                zbufs[1] = new float[w*h];
+                fbufs[0] = new Color[w * h];
+                fbufs[1] = new Color[w * h];
+                zbufs[0] = new float[w * h];
+                zbufs[1] = new float[w * h];
         }
 
         ~Renderer()
@@ -95,18 +99,22 @@ public:
         }
 
         // General
-        virtual void Swap(void) { buf^=1; } // swap buffers
-        virtual void Commit(void) {} // commit to screen
-        virtual void Update(void) {} // update loop function
+        virtual void Swap(void) { buf ^= 1; } // swap buffers
+        virtual void Commit(void) {}          // commit to screen
+        virtual void Update(void) {}          // update loop function
         virtual bool IsRunning(void) { return isRunning; }
 
         virtual void Clear(Color color)
         {
-                for (size_t i = 0; i < w*h; ++i)
+                for (size_t i = 0; i < w * h; ++i)
                         fbufs[buf][i] = color;
         }
 
-        virtual void ZClear(void) { for (size_t i = 0; i < w*h; ++i) zbufs[buf][i] = INFINITY; }
+        virtual void ZClear(void)
+        {
+                for (size_t i = 0; i < w * h; ++i)
+                        zbufs[buf][i] = INFINITY;
+        }
 
         // 3D Features (allow override for optimisations)
         virtual void DrawPoint(const Vertex &p0) { Place(Screen(Project(p0))); }
@@ -135,8 +143,8 @@ public:
 
                 Δx = b.xyz[0] - a.xyz[0];
                 Δy = b.xyz[1] - a.xyz[1];
-                float Δ  = 2 * abs(Δy) - Δx;
-                float y  = a.xyz[1];
+                float Δ = 2 * abs(Δy) - Δx;
+                float y = a.xyz[1];
 
                 for (size_t x = a.xyz[0]; x < b.xyz[0]; ++x)
                 {
@@ -162,9 +170,85 @@ public:
                 }
         }
 
-        virtual void DrawFlatTri(const Vertex p0, const Vertex p1, const Vertex p2) {}
+        virtual void DrawFlatTri(const Vertex p0, const Vertex p1, const Vertex p2)
+        {
+                Vertex a = Screen(p0);
+                Vertex b = Screen(p1);
+                Vertex c = Screen(p2);
+                if (b.xyz[1] > a.xyz[1])
+                        std::swap(a, b);
+                if (c.xyz[1] > b.xyz[1])
+                        std::swap(b, c);
+                if (b.xyz[1] > a.xyz[1])
+                        std::swap(a, b);
+                const float t = (b.xyz[1] - a.xyz[1]) / (c.xyz[1] - a.xyz[1]);
+                Vertex d;
+                d.xyz[0] = Lerp(a.xyz[0], c.xyz[0], t);
+                d.xyz[1] = b.xyz[1];
+                d.xyz[2] = Lerp(a.xyz[2], c.xyz[2], t);
+                d.tint.rgba[0] = Lerp(a.tint.rgba[0], c.tint.rgba[0], t);
+                d.tint.rgba[1] = Lerp(a.tint.rgba[1], c.tint.rgba[1], t);
+                d.tint.rgba[2] = Lerp(a.tint.rgba[2], c.tint.rgba[2], t);
+                d.tint.rgba[3] = Lerp(a.tint.rgba[3], c.tint.rgba[3], t);
+                for (float y = a.xyz[1]; y > b.xyz[1]; --y)
+                {
+                        float t2 = (y - a.xyz[1]) / (b.xyz[1] - a.xyz[1]);
+                        Vertex vl, vr;
+                        vl.xyz[0] = Lerp(a.xyz[0], b.xyz[0], t2);
+                        vl.xyz[1] = y;
+                        vl.xyz[2] = Lerp(a.xyz[2], b.xyz[2], t2);
+                        for (size_t i = 0; i < 4; ++i)
+                                vl.tint.rgba[i] = Lerp(a.tint.rgba[i], b.tint.rgba[i], t2);
+                        vr.xyz[0] = Lerp(a.xyz[0], d.xyz[0], t2);
+                        vr.xyz[1] = y;
+                        vr.xyz[2] = Lerp(a.xyz[2], d.xyz[2], t2);
+                        for (size_t i = 0; i < 4; ++i)
+                                vr.tint.rgba[i] = Lerp(a.tint.rgba[i], d.tint.rgba[i], t2);
+                        if (vl.xyz[0] > vr.xyz[0])
+                                std::swap(vl, vr);
+                        for (float x = vl.xyz[0]; x < vr.xyz[0]; ++x)
+                        {
+                                float tx = (x - vl.xyz[0]) / (vr.xyz[0] - vl.xyz[0]);
+                                Vertex vert;
+                                vert.xyz[0] = x;
+                                vert.xyz[1] = y;
+                                vert.xyz[2] = Lerp(vl.xyz[2], vr.xyz[2], tx);
+                                for (size_t i = 0; i < 4; ++i)
+                                        vert.tint.rgba[i] = Lerp(vl.tint.rgba[i], vr.tint.rgba[i], tx);
+                                Place(vert);
+                        }
+                }
+                for (float y = b.xyz[1]; y > c.xyz[1]; --y)
+                {
+                        float t2 = (y - b.xyz[1]) / (c.xyz[1] - b.xyz[1]);
+                        Vertex vl, vr;
+                        vl.xyz[0] = Lerp(b.xyz[0], c.xyz[0], t2);
+                        vl.xyz[1] = y;
+                        vl.xyz[2] = Lerp(b.xyz[2], c.xyz[2], t2);
+                        for (size_t i = 0; i < 4; ++i)
+                                vl.tint.rgba[i] = Lerp(b.tint.rgba[i], c.tint.rgba[i], t2);
+                        vr.xyz[0] = Lerp(d.xyz[0], c.xyz[0], t2);
+                        vr.xyz[1] = y;
+                        vr.xyz[2] = Lerp(d.xyz[2], c.xyz[2], t2);
+                        for (size_t i = 0; i < 4; ++i)
+                                vr.tint.rgba[i] = Lerp(d.tint.rgba[i], c.tint.rgba[i], t2);
+                        if (vl.xyz[0] > vr.xyz[0])
+                                std::swap(vl, vr);
+                        for (float x = vl.xyz[0]; x < vr.xyz[0]; ++x)
+                        {
+                                float tx = (x - vl.xyz[0]) / (vr.xyz[0] - vl.xyz[0]);
+                                Vertex vert;
+                                vert.xyz[0] = x;
+                                vert.xyz[1] = y;
+                                vert.xyz[2] = Lerp(vl.xyz[2], vr.xyz[2], tx);
+                                for (size_t i = 0; i < 4; ++i)
+                                        vert.tint.rgba[i] = Lerp(vl.tint.rgba[i], vr.tint.rgba[i], tx);
+                                Place(vert);
+                        }
+                }
+        }
 };
 
-void as3d(std::function<void(Renderer&)> main, Renderer &Renderer);
+void as3d(std::function<void(Renderer &)> main, Renderer &Renderer);
 
 #endif
