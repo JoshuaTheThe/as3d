@@ -4,7 +4,8 @@
 #include <iostream>
 #include <assert.h>
 
-template <typename Value, typename Key, Value init> class ll
+template <typename Value, typename Key, Value init>
+class ll
 {
 private:
         struct node
@@ -13,7 +14,7 @@ private:
                 Key key;
                 node *next, *prev;
         };
-        
+
         node *first, *last, *last_accessed;
         size_t size;
 
@@ -64,9 +65,16 @@ private:
         {
                 if (k->prev)
                         k->prev->next = k->next;
+                else
+                        first = k->next;
                 if (k->next)
                         k->next->prev = k->prev;
+                else
+                        last = k->prev;
+                if (last_accessed == k)
+                        last_accessed = k->prev ? k->prev : k->next;
                 delete k;
+                size--;
         }
 
         void remove(Key &key)
@@ -81,7 +89,7 @@ private:
                 node *b = this->searchfrom(this->last_accessed, key, true);
                 if (b)
                 {
-                        remove(a);
+                        remove(b);
                         return;
                 }
         }
