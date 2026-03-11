@@ -4,7 +4,7 @@
 #include <iostream>
 #include <assert.h>
 
-template <typename Value, typename Key, Value init>
+template <typename Value, typename Key>
 class ll
 {
 private:
@@ -37,7 +37,7 @@ private:
                 return nullptr;
         }
 
-        node *append(Value value, Key &key)
+        node *append(const Value &value, Key &key)
         {
                 node *n = new node;
                 n->value = value;
@@ -127,13 +127,13 @@ public:
                         return a->value;
                 }
 
-                node *b = this->searchfrom(this->last_accessed, key, true);
+                node *b = this->searchfrom(this->first, key, false);
                 if (b)
                 {
                         return b->value;
                 }
 
-                return append(init, key)->value;
+                throw std::out_of_range("ll: key not found");
         }
 
         void operator^(Key &key)
@@ -141,10 +141,18 @@ public:
                 remove(key);
         }
 
+        void operator()(const Value &value, Key &key)
+        {
+                append(value, key);
+        }
+
         size_t length(void) const
         {
                 return this->size;
         }
+
+        const node *begin(void) {return this->first;}
+        const node *end(void) {return this->end;}
 };
 
 #endif

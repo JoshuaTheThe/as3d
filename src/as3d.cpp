@@ -4,12 +4,14 @@
 #include <core.h>
 #include <ll.h>
 #include <backends/sdl2.h>
+#include <mdl.h>
 
 int main(void)
 {
         SDL2Backend backend(640, 480);
         float t = 0.01f;
-        as3d([&t](Renderer &renderer)
+        ll<Tri, size_t> mdl = loadModel("assets/skull.obj");
+        as3d([&t, &mdl](Renderer &renderer)
         {
                 const float cosT = cos(t), sinT = sin(t);
                 auto rotate = [&](Vertex v) -> Vertex
@@ -21,21 +23,21 @@ int main(void)
                         return v;
                 };
 
-                const static Vertex a={.tint = {1.0, 0.0, 0.0, 0.5}, .xyz = {-0.5, -0.5, 0.0}},
-                                    b={.tint = {0.0, 1.0, 0.0, 1.0}, .xyz = {0.0,  0.5, 0.0}},
-                                    c={.tint = {0.0, 0.0, 1.0, 1.0}, .xyz = {0.5, -0.5, 0.0}};
-                const Vertex a_prime = rotate(a),
-                             b_prime = rotate(b),
-                             c_prime = rotate(c);
-                const Vertex a_translated = {.tint = a_prime.tint, .xyz = {a_prime.xyz[0], a_prime.xyz[1], a_prime.xyz[2] + 1.0f}},
-                             b_translated = {.tint = b_prime.tint, .xyz = {b_prime.xyz[0], b_prime.xyz[1], b_prime.xyz[2] + 1.0f}},
-                             c_translated = {.tint = c_prime.tint, .xyz = {c_prime.xyz[0], c_prime.xyz[1], c_prime.xyz[2] + 1.0f}};
-                const static Vertex a2={.tint = {1.0, 1.0, 0.0, 1.0}, .xyz = {0.5,  0.5, 2.0}},
-                                    b2={.tint = {0.0, 1.0, 1.0, 1.0}, .xyz = {0.0, -0.5, 2.0}},
-                                    c2={.tint = {1.0, 0.0, 1.0, 1.0}, .xyz = {-0.5, 0.5, 2.0}};
-                renderer.DrawTri(a2, b2, c2);
-                renderer.DrawTri(a_translated, b_translated, c_translated);
-                t += 0.01f;
+                auto translate = [&](Vertex v, float x, float y, float z) -> Vertex
+                {
+                        return {.tint = v.tint, .xyz = {v.xyz[0] + x, v.xyz[1] + y, v.xyz[2] + z}};
+                };
+
+                auto tri = mdl.begin();
+                while (tri)
+                {
+                        renderer.DrawTri(translate(rotate(tri->value.abc[0]), 0.0, 0.0, 5.0),
+                                         translate(rotate(tri->value.abc[1]), 0.0, 0.0, 5.0),
+                                         translate(rotate(tri->value.abc[2]), 0.0, 0.0, 5.0));
+                        tri = tri->next;
+                }
+
+                t += 0.01;
         }, backend);
         return  0;
 }
