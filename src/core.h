@@ -3,7 +3,6 @@
 #define CORE_H
 
 #include <iostream>
-#include <SDL2/SDL.h>
 #include <math.h>
 #include <thread>
 #include <functional>

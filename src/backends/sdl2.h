@@ -2,6 +2,7 @@
 #ifndef BACKEND_SDL2_H
 #define BACKEND_SDL2_H
 
+#include <SDL2/SDL.h>
 #include <core.h>
 #include <ll.h>
 
