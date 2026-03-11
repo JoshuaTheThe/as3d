@@ -169,7 +169,13 @@ public:
         // 3D Features (allow override for optimisations)
         virtual void DrawPoint(const Vertex &p0) { Place(Screen(Project(p0))); }
         virtual void DrawLine(const Vertex &p0, const Vertex &p1) { DrawFlatLine(Project(p0), Project(p1)); }
-        virtual void DrawTri(const Vertex &p0, const Vertex &p1, const Vertex &p2) { DrawFlatTri(Project(p0), Project(p1), Project(p2)); }
+        virtual void DrawTri(const Vertex &p0, const Vertex &p1, const Vertex &p2)
+        {
+                Vertex a = Project(p0), b = Project(p1), c = Project(p2);
+                if (a.xyz[2] == INFINITY || b.xyz[2] == INFINITY || c.xyz[2] == INFINITY)
+                        return;
+                DrawFlatTri(a, b, c);
+        }
 
         // 2D Features (allow override for optimisations)
         virtual void DrawPixel(const Vertex &p0) { Place(Screen(p0)); }
