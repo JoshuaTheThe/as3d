@@ -56,6 +56,11 @@ protected:
 
         Vertex Project(const Vertex &p)
         {
+                if (p.xyz[2] < NEAR)
+                {
+                        return (Vertex){.tint = p.tint, .xyz = {INFINITY, INFINITY, INFINITY}};
+                }
+
                 Vertex new_v = {.tint = p.tint};
                 new_v.xyz[0] = p.xyz[0] / p.xyz[2];
                 new_v.xyz[1] = p.xyz[1] / p.xyz[2];
