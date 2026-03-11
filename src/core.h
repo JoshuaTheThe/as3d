@@ -6,20 +6,74 @@
 #include <SDL2/SDL.h>
 #include <math.h>
 #include <thread>
+#include <functional>
+#include <string>
 
-typedef float   Color[4];
+enum    Backend
+{
+        BACKEND_NONE,
+        BACKEND_SDL2,
+};
+
+struct Color { float rgba[4]; };
 
 struct  Vertex
 {
-        Color   color;
+        Color   tint;
         float   xyz[3];
 };
 
-struct  Tri
+struct Tri { Vertex v[3]; };
+
+class   Renderer
 {
-        Vertex   v[3];
+protected:
+        uint16_t w, h;
+        size_t   buf;
+        Color   *fbufs[2];
+        float   *zbufs[2];
+
+        bool     keymap[256];
+        float    mouseX, mouseY; // X,Y * W,H
+        bool     isRunning = false;
+public:
+        Renderer(uint16_t w, uint16_t h)
+        {
+                this->w = w;
+                this->h = h;
+                buf = 0;
+                fbufs[0] = new Color[w*h];
+                fbufs[1] = new Color[w*h];
+                zbufs[0] = new float[w*h];
+                zbufs[1] = new float[w*h];
+        }
+
+        ~Renderer()
+        {
+                delete[] fbufs[0];
+                delete[] fbufs[1];
+                delete[] zbufs[0];
+                delete[] zbufs[1];
+        }
+
+        // General
+        virtual void Swap(void) { buf^=1; } // swap buffers
+        virtual void Commit(void) {} // commit to screen
+        virtual void Update(void) {} // update loop function
+        virtual bool IsRunning(void) { return isRunning; }
+        virtual void Clear(Color color) {}
+
+        // 3D Features (allow override for optimisations)
+        virtual void DrawLine(const Vertex &p0, const Vertex &p1) {}
+        virtual void DrawPoint(const Vertex &p0) {}
+
+        // 2D Features (allow override for optimisations)
+        virtual void DrawPixel(const Vertex &p0) {}
+        virtual void DrawFlatLine(const Vertex &p0) {}
+        virtual void DrawFlatPixel(const Vertex &p0) {}
+        virtual void DrawFlatTri(const Tri &tri) {}
 };
 
-void as3d(void);
+void as3d(std::function<void(Renderer&)> main, Renderer &Renderer);
 
 #endif

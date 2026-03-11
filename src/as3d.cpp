@@ -3,13 +3,11 @@
 #include <stdlib.h>
 #include <core.h>
 #include <ll.h>
+#include <backends/sdl2.h>
 
 int main(void)
 {
-        ll<size_t, size_t, 0> verts;
-        for (size_t i = 0; i < 1024; ++i)
-                verts[i] = 1;
-        std::thread Renderer(as3d);
-        Renderer.join();
+        SDL2Backend backend(640, 480);
+        as3d([](Renderer &renderer) {;}, backend);
         return  0;
 }
