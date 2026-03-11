@@ -2,7 +2,7 @@
 #ifndef CORE_H
 #define CORE_H
 
-#include <SDL/SDL2.h>
-#include <math>
+#include <SDL2/SDL.h>
+#include <math.h>
 
 #endif
