@@ -11,6 +11,10 @@ int main(void)
         SDL2Backend backend(640, 480);
         float t = 0.01f;
         ll<Tri, size_t> mdl = loadModel("assets/skull.obj");
+        backend.setFragShader([](const Vertex &v) {
+                return v.tint;
+        });
+
         as3d([&t, &mdl](Renderer &renderer)
         {
                 const float cosT = cos(t), sinT = sin(t);
@@ -38,6 +42,7 @@ int main(void)
                 }
 
                 t += 0.01;
+                renderer.AO();
         }, backend);
         return  0;
 }

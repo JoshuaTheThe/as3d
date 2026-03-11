@@ -28,6 +28,9 @@ struct Vertex
         float xyz[3];
 };
 
+typedef std::function<Vertex(const Vertex &)> VertexShader;
+typedef std::function<Color(const Vertex &)> FragmentShader;
+
 class Renderer
 {
 protected:
@@ -39,6 +42,11 @@ protected:
         bool keymap[256];
         float mouseX, mouseY; // X,Y * W,H
         bool isRunning = false;
+
+        VertexShader vertShader = [](const Vertex &v)
+        { return v; };
+        FragmentShader fragShader = [](const Vertex &v)
+        { return v.tint; };
 
         float Lerp(float a, float b, float t)
         {
@@ -68,8 +76,9 @@ protected:
                 return new_v;
         }
 
-        void Place(const Vertex &p)
+        void Place(const Vertex &p0)
         {
+                Vertex p = vertShader(p0);
                 if ((int)p.xyz[0] < 0.0 ||
                     (int)p.xyz[1] < 0.0 ||
                     (int)p.xyz[0] >= this->w ||
@@ -80,12 +89,13 @@ protected:
                 if (zbufs[buf][index] > p.xyz[2])
                 {
                         const Color tint = (Color){
-                                Lerp(fbufs[buf][index].rgba[0], p.tint.rgba[0], p.tint.rgba[3]),
-                                Lerp(fbufs[buf][index].rgba[1], p.tint.rgba[1], p.tint.rgba[3]),
-                                Lerp(fbufs[buf][index].rgba[2], p.tint.rgba[2], p.tint.rgba[3]),
-                                Lerp(fbufs[buf][index].rgba[3], p.tint.rgba[3], p.tint.rgba[3]),
+                            Lerp(fbufs[buf][index].rgba[0], p.tint.rgba[0], p.tint.rgba[3]),
+                            Lerp(fbufs[buf][index].rgba[1], p.tint.rgba[1], p.tint.rgba[3]),
+                            Lerp(fbufs[buf][index].rgba[2], p.tint.rgba[2], p.tint.rgba[3]),
+                            Lerp(fbufs[buf][index].rgba[3], p.tint.rgba[3], p.tint.rgba[3]),
                         };
-                        fbufs[buf][index] = tint;
+                        p.tint = tint;
+                        fbufs[buf][index] = fragShader(p);
                         zbufs[buf][index] = p.xyz[2];
                 }
         }
@@ -115,6 +125,8 @@ public:
         virtual void Commit(void) {}          // commit to screen
         virtual void Update(void) {}          // update loop function
         virtual bool IsRunning(void) { return isRunning; }
+        virtual void setFragShader(FragmentShader shader) { fragShader = shader; }
+        virtual void setVertShader(VertexShader shader) { vertShader = shader; }
 
         virtual void Clear(Color color)
         {
@@ -126,6 +138,32 @@ public:
         {
                 for (size_t i = 0; i < w * h; ++i)
                         zbufs[buf][i] = INFINITY;
+        }
+
+        virtual void AO(void)
+        {
+                for (int y = 0; y < h; y++)
+                        for (int x = 0; x < w; x++)
+                        {
+                                float z = zbufs[buf][y * w + x];
+                                if (z == INFINITY)
+                                        continue;
+                                float occlusion = 0;
+                                for (int dy = -4; dy <= 4; dy++)
+                                        for (int dx = -4; dx <= 4; dx++)
+                                        {
+                                                int nx = x + dx, ny = y + dy;
+                                                if (nx < 0 || ny < 0 || nx >= w || ny >= h)
+                                                        continue;
+                                                float nz = zbufs[buf][ny * w + nx];
+                                                if (nz < z - 0.01f)
+                                                        occlusion += 1.0f;
+                                        }
+                                occlusion /= 81.0f;
+                                fbufs[buf][y * w + x].rgba[0] *= (1.0f - occlusion);
+                                fbufs[buf][y * w + x].rgba[1] *= (1.0f - occlusion);
+                                fbufs[buf][y * w + x].rgba[2] *= (1.0f - occlusion);
+                        }
         }
 
         // 3D Features (allow override for optimisations)
