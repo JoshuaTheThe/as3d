@@ -73,12 +73,6 @@ public:
                 }
         }
 
-        void Clear(Color color)
-        {
-                for (size_t i = 0; i < w*h; ++i)
-                        fbufs[buf][i] = color;
-        }
-
         // copy fbuf[buf] to screen
         void Commit(void)
         {
@@ -90,7 +84,7 @@ public:
                         uint8_t g = c.rgba[1] * 255;
                         uint8_t b = c.rgba[2] * 255;
                         uint8_t a = c.rgba[3] * 255;
-                        pixels[i] = (a << 24) | (r << 16) | (g << 8) | b;
+                        pixels[i] = (a << 24) | (b << 16) | (g << 8) | a;
                 }
                 SDL_UpdateTexture(SDLTexture, nullptr, pixels, w * sizeof(uint32_t));
                 delete[] pixels;
