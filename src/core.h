@@ -65,7 +65,7 @@ protected:
         {
                 if (p.xyz[2] < NEAR)
                 {
-                        return (Vertex){.tint = p.tint, .xyz = {INFINITY, INFINITY, INFINITY}};
+                        return (Vertex){.tint = p.tint, .xyz = {(float)INFINITY, (float)INFINITY, (float)INFINITY}};
                 }
 
                 Vertex new_v = {.tint = p.tint};
@@ -182,9 +182,9 @@ public:
         virtual void DrawFlatLine(const Vertex p0, const Vertex p1)
         {
                 Vertex a = Screen(p0), b = Screen(p1);
-                float Δx = b.xyz[0] - a.xyz[0];
-                float Δy = b.xyz[1] - a.xyz[1];
-                bool steep = abs(Δy) > abs(Δx);
+                float dx = b.xyz[0] - a.xyz[0];
+                float dy = b.xyz[1] - a.xyz[1];
+                bool steep = abs(dy) > abs(dx);
                 if (steep)
                 {
                         std::swap(a.xyz[0], a.xyz[1]);
@@ -196,14 +196,14 @@ public:
                         std::swap(a, b);
                 }
 
-                Δx = b.xyz[0] - a.xyz[0];
-                Δy = b.xyz[1] - a.xyz[1];
-                float Δ = 2 * abs(Δy) - Δx;
+                dx = b.xyz[0] - a.xyz[0];
+                dy = b.xyz[1] - a.xyz[1];
+                float d = 2 * abs(dy) - dx;
                 float y = a.xyz[1];
 
                 for (size_t x = a.xyz[0]; x < b.xyz[0]; ++x)
                 {
-                        const float t = (float)(x - a.xyz[0]) / Δx;
+                        const float t = (float)(x - a.xyz[0]) / dx;
                         Vertex vert;
                         vert.tint.rgba[0] = this->Lerp(a.tint.rgba[0], b.tint.rgba[0], t);
                         vert.tint.rgba[1] = this->Lerp(a.tint.rgba[1], b.tint.rgba[1], t);
@@ -215,13 +215,13 @@ public:
                         if (steep)
                                 std::swap(vert.xyz[0], vert.xyz[1]);
                         Place(vert);
-                        if (Δ > 0)
+                        if (d > 0)
                         {
-                                y += (Δy < 0) ? -1 : 1;
-                                Δ += 2 * (abs(Δy) - Δx);
+                                y += (dy < 0) ? -1 : 1;
+                                d += 2 * (abs(dy) - dx);
                                 continue;
                         }
-                        Δ += 2 * abs(Δy);
+                        d += 2 * abs(dy);
                 }
         }
 

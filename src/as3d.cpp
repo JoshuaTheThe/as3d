@@ -3,12 +3,20 @@
 #include <stdlib.h>
 #include <core.h>
 #include <ll.h>
-#include <backends/sdl2.h>
+#ifndef _WIN32
+        #include <backends/sdl2.h>
+#else
+        #include <backends/win32.h>
+#endif
 #include <mdl.h>
 
 int main(void)
 {
+#ifndef _WIN32
         SDL2Backend backend(640, 480);
+#else
+        Win32Backend backend(640, 480);
+#endif
         float t = 0.01f;
         ll<Tri, size_t> mdl = loadModel("assets/skull.obj");
         backend.setFragShader([](const Vertex &v) {
