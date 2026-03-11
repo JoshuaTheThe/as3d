@@ -10,7 +10,7 @@ override CXXFILES := $(shell cd $(SRC) && find -L * -type f -name '*.cpp' | LC_A
 override OBJFILES := $(addprefix $(OBJ)/,$(CXXFILES:.cpp=.cpp.o))
 
 override LDFLAGS := -lSDL2 -lm -pthread
-override CXXFLAGS := -I src/ -std=c++20 -pthread -g
+override CXXFLAGS := -I src/ -std=c++20 -pthread -O3
 override HEADER_DEPS := $(addprefix obj/,$(CXXFILES:.cpp=.cpp.d))
 
 .PHONY: all
