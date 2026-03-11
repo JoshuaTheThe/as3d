@@ -60,6 +60,32 @@ private:
                 return n;
         }
 
+        void remove(node *k)
+        {
+                if (k->prev)
+                        k->prev->next = k->next;
+                if (k->next)
+                        k->next->prev = k->prev;
+                delete k;
+        }
+
+        void remove(Key &key)
+        {
+                node *a = this->searchfrom(this->last_accessed, key, false);
+                if (a)
+                {
+                        remove(a);
+                        return;
+                }
+
+                node *b = this->searchfrom(this->last_accessed, key, true);
+                if (b)
+                {
+                        remove(a);
+                        return;
+                }
+        }
+
 public:
         ll(void)
         {
@@ -85,21 +111,26 @@ public:
                 last_accessed = last = first = nullptr;
         }
 
-        Value &operator[](Key idx)
+        Value &operator[](Key key)
         {
-                node *a = this->searchfrom(this->last_accessed, idx, false);
+                node *a = this->searchfrom(this->last_accessed, key, false);
                 if (a)
                 {
                         return a->value;
                 }
 
-                node *b = this->searchfrom(this->last_accessed, idx, true);
+                node *b = this->searchfrom(this->last_accessed, key, true);
                 if (b)
                 {
                         return b->value;
                 }
 
-                return append(init, idx)->value;
+                return append(init, key)->value;
+        }
+
+        void operator^(Key &key)
+        {
+                remove(key);
         }
 
         size_t length(void) const
