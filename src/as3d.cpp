@@ -49,7 +49,7 @@ int main(void)
                         tri = tri->next;
                 }
 
-                t += 0.01;
+                t += 0.1;
                 renderer.AO();
         }, backend);
         return  0;
