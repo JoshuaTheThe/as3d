@@ -111,7 +111,7 @@ public:
         // 3D Features (allow override for optimisations)
         virtual void DrawPoint(const Vertex &p0) { Place(Screen(Project(p0))); }
         virtual void DrawLine(const Vertex &p0, const Vertex &p1) { DrawFlatLine(Project(p0), Project(p1)); }
-        virtual void DrawTri(const Vertex &p0, const Vertex &p1, const Vertex &v2) {}
+        virtual void DrawTri(const Vertex &p0, const Vertex &p1, const Vertex &p2) { DrawFlatTri(Project(p0), Project(p1), Project(p2)); }
 
         // 2D Features (allow override for optimisations)
         virtual void DrawPixel(const Vertex &p0) { Place(Screen(p0)); }
