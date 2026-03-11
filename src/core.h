@@ -25,8 +25,6 @@ struct  Vertex
         float   xyz[3];
 };
 
-struct Tri { Vertex v[3]; };
-
 class   Renderer
 {
 protected:
@@ -113,7 +111,7 @@ public:
         // 3D Features (allow override for optimisations)
         virtual void DrawPoint(const Vertex &p0) { Place(Screen(Project(p0))); }
         virtual void DrawLine(const Vertex &p0, const Vertex &p1) { DrawFlatLine(Project(p0), Project(p1)); }
-        virtual void DrawTri(const Tri &tri) {}
+        virtual void DrawTri(const Vertex &p0, const Vertex &p1, const Vertex &v2) {}
 
         // 2D Features (allow override for optimisations)
         virtual void DrawPixel(const Vertex &p0) { Place(Screen(p0)); }
@@ -164,7 +162,7 @@ public:
                 }
         }
 
-        virtual void DrawFlatTri(const Tri &tri) {}
+        virtual void DrawFlatTri(const Vertex p0, const Vertex p1, const Vertex p2) {}
 };
 
 void as3d(std::function<void(Renderer&)> main, Renderer &Renderer);
