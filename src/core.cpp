@@ -2,7 +2,7 @@
 #include <core.h>
 #include <ll.h>
 
-void CoreRendererMain(void)
+void as3d(void)
 {
         return;
 }

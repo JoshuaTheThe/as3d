@@ -20,6 +20,6 @@ struct  Tri
         Vertex   v[3];
 };
 
-void CoreRendererMain(void);
+void as3d(void);
 
 #endif
