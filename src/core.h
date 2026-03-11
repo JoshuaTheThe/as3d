@@ -39,6 +39,11 @@ protected:
         float    mouseX, mouseY; // X,Y * W,H
         bool     isRunning = false;
 
+        float Lerp(float a, float b, float t)
+        {
+                return a + t * (b - a);
+        }
+
         Vertex Screen(const Vertex &p)
         {
                 Vertex new_v = {.tint = p.tint};
@@ -107,7 +112,7 @@ public:
 
         // 3D Features (allow override for optimisations)
         virtual void DrawPoint(const Vertex &p0) { Place(Screen(Project(p0))); }
-        virtual void DrawLine(const Vertex &p0, const Vertex &p1){}
+        virtual void DrawLine(const Vertex &p0, const Vertex &p1) { DrawFlatLine(Project(p0), Project(p1)); }
         virtual void DrawTri(const Tri &tri) {}
 
         // 2D Features (allow override for optimisations)
@@ -137,12 +142,15 @@ public:
 
                 for (size_t x = a.xyz[0]; x < b.xyz[0]; ++x)
                 {
-                        // TODO - lerp Tint
-                        Vertex vert = {.tint = a.tint};
+                        const float t = (float)(x - a.xyz[0]) / Δx;
+                        Vertex vert;
+                        vert.tint.rgba[0] = this->Lerp(a.tint.rgba[0], b.tint.rgba[0], t);
+                        vert.tint.rgba[1] = this->Lerp(a.tint.rgba[1], b.tint.rgba[1], t);
+                        vert.tint.rgba[2] = this->Lerp(a.tint.rgba[2], b.tint.rgba[2], t);
+                        vert.tint.rgba[3] = this->Lerp(a.tint.rgba[3], b.tint.rgba[3], t);
                         vert.xyz[0] = x;
                         vert.xyz[1] = y;
-                        // TODO - lerp Z
-                        vert.xyz[2] = a.xyz[2];
+                        vert.xyz[2] = this->Lerp(a.xyz[2], b.xyz[2], t);
                         if (steep)
                                 std::swap(vert.xyz[0], vert.xyz[1]);
                         Place(vert);

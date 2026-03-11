@@ -9,7 +9,7 @@ void as3d(std::function<void(Renderer&)> main, Renderer &backend)
         {
                 backend.Update();
                 backend.ZClear();
-                backend.Clear((Color){1.0,0.0,0.0,1.0});
+                backend.Clear((Color){0.0,0.0,0.0,1.0});
                 main(backend);
                 backend.Commit();
                 backend.Swap();

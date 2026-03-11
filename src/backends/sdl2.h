@@ -84,7 +84,7 @@ public:
                         uint8_t g = c.rgba[1] * 255;
                         uint8_t b = c.rgba[2] * 255;
                         uint8_t a = c.rgba[3] * 255;
-                        pixels[i] = (a << 24) | (b << 16) | (g << 8) | a;
+                        pixels[i] = (a << 24) | (b << 16) | (g << 8) | r;
                 }
                 SDL_UpdateTexture(SDLTexture, nullptr, pixels, w * sizeof(uint32_t));
                 delete[] pixels;
