@@ -33,7 +33,6 @@ int main(void)
                 const static Vertex a2={.tint = {1.0, 1.0, 0.0, 1.0}, .xyz = {0.5,  0.5, 2.0}},
                                     b2={.tint = {0.0, 1.0, 1.0, 1.0}, .xyz = {0.0, -0.5, 2.0}},
                                     c2={.tint = {1.0, 0.0, 1.0, 1.0}, .xyz = {-0.5, 0.5, 2.0}};
-                // todo - draw opaque triangle in front
                 renderer.DrawTri(a2, b2, c2);
                 renderer.DrawTri(a_translated, b_translated, c_translated);
                 t += 0.01f;
