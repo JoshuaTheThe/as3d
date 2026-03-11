@@ -76,10 +76,17 @@ protected:
                     (int)p.xyz[1] >= this->h)
                         return;
                 const size_t row = (int)p.xyz[1] * this->w;
-                if (zbufs[buf][row + (int)p.xyz[0]] > p.xyz[2])
+                const size_t index = row + (int)p.xyz[0];
+                if (zbufs[buf][index] > p.xyz[2])
                 {
-                        fbufs[buf][row + (int)p.xyz[0]] = p.tint;
-                        zbufs[buf][row + (int)p.xyz[0]] = p.xyz[2];
+                        const Color tint = (Color){
+                                Lerp(fbufs[buf][index].rgba[0], p.tint.rgba[0], p.tint.rgba[3]),
+                                Lerp(fbufs[buf][index].rgba[1], p.tint.rgba[1], p.tint.rgba[3]),
+                                Lerp(fbufs[buf][index].rgba[2], p.tint.rgba[2], p.tint.rgba[3]),
+                                Lerp(fbufs[buf][index].rgba[3], p.tint.rgba[3], p.tint.rgba[3]),
+                        };
+                        fbufs[buf][index] = tint;
+                        zbufs[buf][index] = p.xyz[2];
                 }
         }
 

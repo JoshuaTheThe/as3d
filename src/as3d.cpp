@@ -21,8 +21,8 @@ int main(void)
                         return v;
                 };
 
-                const static Vertex a={.tint = {1.0, 0.0, 1.0, 1.0}, .xyz = {-0.5, -0.5, 0.0}},
-                                    b={.tint = {0.0, 1.0, 1.0, 1.0}, .xyz = {0.0,  0.5, 0.0}},
+                const static Vertex a={.tint = {1.0, 0.0, 0.0, 0.5}, .xyz = {-0.5, -0.5, 0.0}},
+                                    b={.tint = {0.0, 1.0, 0.0, 1.0}, .xyz = {0.0,  0.5, 0.0}},
                                     c={.tint = {0.0, 0.0, 1.0, 1.0}, .xyz = {0.5, -0.5, 0.0}};
                 const Vertex a_prime = rotate(a),
                              b_prime = rotate(b),
@@ -30,6 +30,11 @@ int main(void)
                 const Vertex a_translated = {.tint = a_prime.tint, .xyz = {a_prime.xyz[0], a_prime.xyz[1], a_prime.xyz[2] + 1.0f}},
                              b_translated = {.tint = b_prime.tint, .xyz = {b_prime.xyz[0], b_prime.xyz[1], b_prime.xyz[2] + 1.0f}},
                              c_translated = {.tint = c_prime.tint, .xyz = {c_prime.xyz[0], c_prime.xyz[1], c_prime.xyz[2] + 1.0f}};
+                const static Vertex a2={.tint = {1.0, 1.0, 0.0, 1.0}, .xyz = {0.5,  0.5, 2.0}},
+                                    b2={.tint = {0.0, 1.0, 1.0, 1.0}, .xyz = {0.0, -0.5, 2.0}},
+                                    c2={.tint = {1.0, 0.0, 1.0, 1.0}, .xyz = {-0.5, 0.5, 2.0}};
+                // todo - draw opaque triangle in front
+                renderer.DrawTri(a2, b2, c2);
                 renderer.DrawTri(a_translated, b_translated, c_translated);
                 t += 0.01f;
         }, backend);
