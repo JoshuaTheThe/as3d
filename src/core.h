@@ -64,13 +64,13 @@ public:
         virtual void Clear(Color color) {}
 
         // 3D Features (allow override for optimisations)
-        virtual void DrawLine(const Vertex &p0, const Vertex &p1) {}
         virtual void DrawPoint(const Vertex &p0) {}
+        virtual void DrawLine(const Vertex &p0, const Vertex &p1) {}
+        virtual void DrawTri(const Tri &tri) {}
 
         // 2D Features (allow override for optimisations)
         virtual void DrawPixel(const Vertex &p0) {}
         virtual void DrawFlatLine(const Vertex &p0) {}
-        virtual void DrawFlatPixel(const Vertex &p0) {}
         virtual void DrawFlatTri(const Tri &tri) {}
 };
 
