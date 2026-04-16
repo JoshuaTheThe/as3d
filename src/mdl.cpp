@@ -6,6 +6,7 @@
 
 ll<Tri, size_t> loadModel(std::string path)
 {
+        printf("debug: attempting load file\n");
         ll<Tri, size_t> tris;
         ll<Vertex, size_t> verts;
         std::ifstream file(path);
@@ -32,5 +33,6 @@ ll<Tri, size_t> loadModel(std::string path)
                 }
         }
 
+        printf("debug: loaded file\n");
         return tris;
 }

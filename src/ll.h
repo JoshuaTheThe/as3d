@@ -133,7 +133,8 @@ public:
                         return b->value;
                 }
 
-                throw std::out_of_range("ll: key not found");
+                std::string msg = "ll: key not found" + std::to_string(key);
+                throw std::out_of_range(msg);
         }
 
         void operator^(Key &key)

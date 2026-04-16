@@ -4,7 +4,7 @@
 #include <core.h>
 #include <ll.h>
 #ifndef _WIN32
-        #include <backends/sdl2.h>
+        #include <backends/x11.h>
 #else
         #include <backends/win32.h>
 #endif
@@ -13,12 +13,12 @@
 int main(void)
 {
 #ifndef _WIN32
-        SDL2Backend backend(640, 480);
+        X11Backend backend(640, 480);
 #else
         Win32Backend backend(640, 480);
 #endif
         float t = 0.01f;
-        ll<Tri, size_t> mdl = loadModel("assets/skull.obj");
+        ll<Tri, size_t> mdl = loadModel("assets/teapot.obj");
         backend.setFragShader([](const Vertex &v) {
                 return v.tint;
         });
